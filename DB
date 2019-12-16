@@ -1,0 +1,148 @@
+use abc_bank;
+ 
+create table bank_info(
+swift_code varchar(15),
+bank_name varchar(20),
+bank_url varchar(25)
+);
+desc bank_info;
+select * from bank_info;
+insert into bank_info values('B0001','ABCBANK','abcbank.com');
+/*inserting at the same place as on the table*/
+
+create table branch(
+branch_id varchar(15) primary key,
+branch_name varchar(20),
+ifsc_code varchar(20),
+branch_address varchar(20),
+branch_contact bigint(11));
+desc branch;
+insert into branch values('ABC001','bangalore','ABC12345','bangalore',1800987654);
+insert into branch values('ABC002','mangalore','ABC12389','mangalore',1800989999);
+select * from branch;
+/* insertion done for branch*/
+
+
+CREATE TABLE account (
+    account_id VARCHAR(15) PRIMARY KEY,
+    acc_type varchar(20) not null,
+    acc_desc varchar(500),
+    min_balance float(6,2),
+    branch_id varchar(15) references branch(branch_id)
+    );
+desc account;
+insert into account values('A001','Savings','A savings account is a type of account that is opened at a bank or other financial institution that earns a moderate interest on the balance maintained',0.00,'ABC001');
+insert into account values('A002','Current','A current account, also known as financial account is a type of deposit account maintained by individuals who carry out significantly higher number of transactions with banks on a regular basis.',1000.00,'ABC001'); 
+select * from account;
+/*insertion happened for account*/
+drop table account;
+
+create table customer_account(
+customer_Acc_no varchar(15) primary key,
+open_date date not null,
+balance float(20) not null,
+cust_id varchar(10) references customer(cust_id),
+account_id varchar(15) references account(account_id),
+CONSTRAINT account_unique UNIQUE (cust_id,account_id)
+);
+desc customer_account;
+insert into customer_account values('S0001','1996-01-10',10000,123456,'A001');
+insert into customer_account values('S0002','1996-01-10',10000,123456,'A002');
+insert into customer_account values('S0003','1996-01-10',10000,123457,'A001');
+insert into customer_account values('S0004','1996-04-09',12000,123458,'A002');
+select * from customer_account;
+/*insertion happened in customer_account*/
+/*select * from customer,customer_account;*/
+
+create table customer(
+cust_id varchar(15) primary key,
+name varchar(20) not null,
+dob date not null,
+contact bigint(11) not null,
+address varchar(200) not null,
+username varchar(20) not null unique,
+password varchar(20) not null,
+aadhar_card bigint(13) unique not null,
+pan_card varchar(10) unique not null,
+branch_id varchar(15) references branch(branch_id)
+);
+desc customer;
+insert into customer values(123456,'sagar','1996-10-01',8971039148,'hubli gadag gada','sagar','123456',123456789121,'ASDFG1234P','ABC001');
+insert into customer values(123457,'nikil','1997-05-21',7845986578,'Ballari vidyanagar','nikil','123456',123456789122,'ASDFG1234Q','ABC002');
+insert into customer values(123458,'sai','1997-12-12',8974651542,'raichur ','sai','123456',123456789123,'ASDFG1234R','ABC002');
+select * from customer;
+/*insertion of the customer is done here*/
+
+create table loanAccount(
+loan_Acc_no varchar(15) primary key,
+open_date date not null,
+close_date date not null,
+balance float(20) not null,
+loan_id varchar(10) references loan(loan_id),
+branch_id varchar(15) references branch(branch_id),
+cust_id varchar(10) references customer(cust_id),
+account_no varchar(15) references customer_account(customer_Acc_no),
+CONSTRAINT account_unique UNIQUE (cust_id,account_no)
+);
+desc loanAccount;
+insert into loanAccount values('LO001','2018-01-10','2019-01-10',50000,'L0001','ABC002',123456,'S0001');
+insert into loanAccount values('LO002','2018-01-10','2019-01-10',50000,'L0003','ABC002',123458,'S0003');
+select * from loanAccount;
+/*insertion into loanacvcount done*/
+
+
+create table loan(
+	loan_id varchar(10) primary key,
+    loan_type varchar(20) not null,
+    interest_rate float(10) not null,
+    loan_desc varchar(100)
+    );  
+desc loan; 
+insert into loan values('l001','Car loan',11.00,'Salary above 50000 Upto 5 lakhs with 11% ROI with respect to time');
+insert into loan values('l002','Education loan',10.00,'Sureity compulsary Upto 4 lakh with 10% ROI with respect to time');
+select * from loan;
+/*insertion to laon table done*/
+
+
+create table transaction(
+trans_id varchar(15) primary key,
+date varchar(15),
+time varchar(10),
+debit float,
+credit float,
+balance float(20) references customer_account(balance),
+account_no varchar(15) references customer_account(customer_Acc_no)
+);
+desc transaction;
+insert into transaction values('t001','21-11-2019','3:42 PM',500.00,0.00,9500,'S0001');
+insert into transaction values('t002','01-12-2019','10:45 AM',0.00,1000.00,13000,'S0004');
+select * from transaction;
+/*insertions to transactions done here*/
+
+
+create table employee(
+employee_id varchar(15) primary key,
+employee_name varchar(20),
+dob varchar(15),
+contact bigint(11),
+mail varchar(25),
+username varchar(20),
+password varchar(20),
+employee_role varchar(20)
+);
+desc employee;
+insert into employee values('e001','Varsha', '16-08-1998',9663303566,'varsha@gmail.com','varsha','varsha@123','managing director');
+insert into employee values('e002','Nikhita', '01-06-1997',7022911554,'nikitha@gmail.com','nikitha','nikitha@123','CEO');
+insert into employee values('e003','Thrupthi', '09-09-1997',9663777766,'tirupathi@gmail.com','thrupthi','thrupthi@123','branch manager');
+select * from employee;
+/*employee table is created here*/
+
+create table employee_branch(
+employee_id varchar(15) references employee(employee_id),
+branch_id varchar(15) references branch(branch_id)
+);
+desc employee_branch;
+insert into employee_branch values('e003','b002');
+select * from employee_branch;
+/*insertion to employee branch for a003 done*/
+
